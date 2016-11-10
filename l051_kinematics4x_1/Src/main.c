@@ -410,6 +410,12 @@ int main(void)
 	init_sensors();
 
 	//***********************************************
+	uint32_t eeprom_mark = eeprom_read_mark();
+	eeprom_write_mark();
+	eeprom_mark = eeprom_read_mark();
+	eeprom_clear_mark();
+	eeprom_mark = eeprom_read_mark();
+
 
 
 	int counter = 0;
