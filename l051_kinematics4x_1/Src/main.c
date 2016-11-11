@@ -39,6 +39,10 @@
 
 #include "string.h"
 
+#include "eeprom_storage_obj.h"
+
+//#define SAVE_CALIBRATION
+
 
 #define NUMBER_OF_SENSORS 4
 
@@ -371,9 +375,33 @@ void init_sensors()
 // Private function prototypes -----------------------------------------------
 
 
+// eeprom map *************************************************
+// 0x08080000 mark (0x12345678)
+// 0x08080004 gyro x calibration offset
+// 0x08080008 gyro y calibration offset
+// 0x0808000c gyro z calibration offset
+// 0x08080010 accel x calibration offset
+// 0x08080014 accel y calibration offset
+// 0x08080018 accel z calibration offset
+// 0x0808001c magnet x calibration offset
+// 0x08080020 magnet y calibration offset
+// 0x08080024 magnet z calibration offset
 
 int main(void)
 {
+
+	int32_t gyro_calibration_x = 0;
+	int32_t gyro_calibration_y = 0;
+	int32_t gyro_calibration_z = 0;
+	int32_t accel_calibration_x = 0;
+	int32_t accel_calibration_y = 0;
+	int32_t accel_calibration_z = 0;
+	int32_t magnet_calibration_x = 0;
+	int32_t magnet_calibration_y = 0;
+	int32_t magnet_calibration_z = 0;
+
+
+
 
 	int16_t accel_x;
 	int16_t accel_y;
@@ -407,14 +435,56 @@ int main(void)
 	MX_TIM2_Init();
 	MX_USART1_UART_Init();
 
+#ifdef SAVE_CALIBRATION
+	gyro_calibration_x = 1;
+	gyro_calibration_y = 2;
+	gyro_calibration_z = 3;
+	accel_calibration_x = -1;
+	accel_calibration_y = -2;
+	accel_calibration_z = -3;
+	magnet_calibration_x = 101;
+	magnet_calibration_y = -102;
+	magnet_calibration_z = 103;
+
+	eeprom_write_mark();
+	eeprom_write_int32_value(gyro_calibration_x, EEPROM_GYRO_X);
+	eeprom_write_int32_value(gyro_calibration_y, EEPROM_GYRO_Y);
+	eeprom_write_int32_value(gyro_calibration_z, EEPROM_GYRO_Z);
+	eeprom_write_int32_value(accel_calibration_x, EEPROM_ACCEL_X);
+	eeprom_write_int32_value(accel_calibration_y, EEPROM_ACCEL_Y);
+	eeprom_write_int32_value(accel_calibration_z, EEPROM_ACCEL_Z);
+	eeprom_write_int32_value(magnet_calibration_x, EEPROM_MAGNET_X);
+	eeprom_write_int32_value(magnet_calibration_y, EEPROM_MAGNET_Y);
+	eeprom_write_int32_value(magnet_calibration_z, EEPROM_MAGNET_Z);
+
+#endif
+
+	// read calibration
+	uint32_t eeprom_mark = eeprom_read_mark();
+	if(eeprom_mark == 0x12345678)  // est' kalibrovochnye dannye v pamyati
+	{
+		// chitaem kalibrovochnye dannye:
+		gyro_calibration_x = eeprom_read_int32_value(EEPROM_GYRO_X);
+		gyro_calibration_y = eeprom_read_int32_value(EEPROM_GYRO_Y);
+		gyro_calibration_z = eeprom_read_int32_value(EEPROM_GYRO_Z);
+		accel_calibration_x = eeprom_read_int32_value(EEPROM_ACCEL_X);
+		accel_calibration_y = eeprom_read_int32_value(EEPROM_ACCEL_Y);
+		accel_calibration_z = eeprom_read_int32_value(EEPROM_ACCEL_Z);
+		magnet_calibration_x = eeprom_read_int32_value(EEPROM_MAGNET_X);
+		magnet_calibration_y = eeprom_read_int32_value(EEPROM_MAGNET_Y);
+		magnet_calibration_z = eeprom_read_int32_value(EEPROM_MAGNET_Z);
+	}
+
+
+
 	init_sensors();
 
 	//***********************************************
-	uint32_t eeprom_mark = eeprom_read_mark();
-	eeprom_write_mark();
-	eeprom_mark = eeprom_read_mark();
-	eeprom_clear_mark();
-	eeprom_mark = eeprom_read_mark();
+	//uint32_t eeprom_mark = eeprom_read_mark();
+	//eeprom_write_mark();
+	//eeprom_mark = eeprom_read_mark();
+	//eeprom_clear_mark();
+	//eeprom_mark = eeprom_read_mark();
 
 
 
@@ -467,6 +537,17 @@ int main(void)
 		{
 			fill_buffer[i] /= 8;
 		}
+
+		// calibration
+		fill_buffer[0] += (int16_t)gyro_calibration_x;
+		fill_buffer[1] += (int16_t)gyro_calibration_y;
+		fill_buffer[2] += (int16_t)gyro_calibration_z;
+		fill_buffer[3] += (int16_t)accel_calibration_x;
+		fill_buffer[4] += (int16_t)accel_calibration_y;
+		fill_buffer[5] += (int16_t)accel_calibration_z;
+		fill_buffer[6] += (int16_t)magnet_calibration_x;
+		fill_buffer[7] += (int16_t)magnet_calibration_y;
+		fill_buffer[8] += (int16_t)magnet_calibration_z;
 
 		// change buffers
 		uint16_t *aux_pointer = out_buffer;

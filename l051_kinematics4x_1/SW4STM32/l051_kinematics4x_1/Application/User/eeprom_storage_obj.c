@@ -30,25 +30,16 @@ uint32_t eeprom_read_mark()
 	return return_data;
 }
 
-void eeprom_write_discharge_capacity(uint32_t discharge_capaciy)
+
+
+void eeprom_write_int32_value(int32_t value, uint32_t *address)
 {
 	HAL_FLASHEx_DATAEEPROM_Unlock();
-	HAL_FLASHEx_DATAEEPROM_Erase(EEPROM_DISCHCAP_ADDRESS);
-	HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_WORD, EEPROM_DISCHCAP_ADDRESS, discharge_capaciy);
+	HAL_FLASHEx_DATAEEPROM_Erase(address);
+	HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_WORD, address, value);
 	HAL_FLASHEx_DATAEEPROM_Lock();
 }
-uint32_t eeprom_read_discharge_capacity()
+int32_t eeprom_read_int32_value(uint32_t *address)
 {
-	return *((uint32_t *)EEPROM_DISCHCAP_ADDRESS);
-}
-void eeprom_write_remaining_capacity(uint32_t remaining_capaciy)
-{
-	HAL_FLASHEx_DATAEEPROM_Unlock();
-	HAL_FLASHEx_DATAEEPROM_Erase(EEPROM_REMCAP_ADDRESS);
-	HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_WORD, EEPROM_REMCAP_ADDRESS, remaining_capaciy);
-	HAL_FLASHEx_DATAEEPROM_Lock();
-}
-uint32_t eeprom_read_remaining_capacity()
-{
-	return *((uint32_t *)EEPROM_REMCAP_ADDRESS);
+	return (int32_t)(*address);
 }
