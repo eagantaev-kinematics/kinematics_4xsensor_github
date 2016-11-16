@@ -41,7 +41,8 @@
 
 #include "eeprom_storage_obj.h"
 
-//#define SAVE_CALIBRATION
+#include "calibr_lab_00.h"  // fail s kalibrovochnymi dannymi
+#define SAVE_CALIBRATION
 
 
 #define NUMBER_OF_SENSORS 4
@@ -436,15 +437,15 @@ int main(void)
 	MX_USART1_UART_Init();
 
 #ifdef SAVE_CALIBRATION
-	gyro_calibration_x = 1;
-	gyro_calibration_y = 2;
-	gyro_calibration_z = 3;
-	accel_calibration_x = -1;
-	accel_calibration_y = -2;
-	accel_calibration_z = -3;
-	magnet_calibration_x = 101;
-	magnet_calibration_y = -102;
-	magnet_calibration_z = 103;
+	gyro_calibration_x =	 GX;
+	gyro_calibration_y =	 GY;
+	gyro_calibration_z =	 GZ;
+	accel_calibration_x =	 AX;
+	accel_calibration_y =	 AY;
+	accel_calibration_z =	 AZ;
+	magnet_calibration_x =	 MX;
+	magnet_calibration_y =	 MY;
+	magnet_calibration_z =	 MZ;
 
 	eeprom_write_mark();
 	eeprom_write_int32_value(gyro_calibration_x, EEPROM_GYRO_X);
